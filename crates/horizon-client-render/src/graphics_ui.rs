@@ -533,7 +533,7 @@ impl H {
         let g = &mut s.horizon;
         match self {
             H::LodDistance => {
-                g.lod_distance = step(&[0, 64, 128, 256, 512, 1024], g.lod_distance, back)
+                g.lod_distance = step(&[0, 32, 64, 128, 256, 512, 1024], g.lod_distance, back)
             }
             H::FarDetail => {
                 g.far_detail = step(&[FarDetail::Full, FarDetail::Reduced], g.far_detail, back)
@@ -1296,7 +1296,7 @@ mod tests {
                 .unwrap();
             assert_eq!(items[render + 1], item);
         }
-        for distance in [64, 128, 256, 512, 1024, 0] {
+        for distance in [32, 64, 128, 256, 512, 1024, 0] {
             item.cycle(&mut s, false, [854, 480]);
             assert_eq!(s.horizon.lod_distance, distance);
             assert_eq!(s.render_distance, near);
