@@ -1,0 +1,56 @@
+name: Build Horizon Android (LOD 32)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/lod-minimum-32
+    paths:
+      - "crates/horizon-client-render/src/graphics.rs"
+      - "crates/horizon-client-render/src/graphics_ui.rs"
+      - ".github/workflows/build-lod32-android.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-arm64:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Prepare Android build
+        run: |
+          python tools/android_prepare.py
+
+      - name: Build public ARM64 APK
+        run: |
+          python tools/android_build.py --abi arm64-v8a --public
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: horizon-android-lod32-arm64
+          path: .local/android/apk/arm64-v8a/horizon-android-public.apk
+          if-no-files-found: error
+          retention-days: 14
